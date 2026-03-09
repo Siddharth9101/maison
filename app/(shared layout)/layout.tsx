@@ -1,0 +1,9 @@
+import { ReactNode } from "react";
+
+export default function SharedLayout({
+  children,
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  return <>{children}</>;
+}
