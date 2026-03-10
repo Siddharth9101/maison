@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Maison Marketplace",
@@ -22,7 +23,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            {children}
+            <Toaster />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
