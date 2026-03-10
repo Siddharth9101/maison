@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/web/navbar";
 import { ReactNode } from "react";
 
 export default function SharedLayout({
@@ -5,5 +6,10 @@ export default function SharedLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  return <>{children}</>;
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 }
