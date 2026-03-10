@@ -1,3 +1,4 @@
+import { Footer } from "@/components/web/footer";
 import { Navbar } from "@/components/web/navbar";
 import { ReactNode } from "react";
 
@@ -9,7 +10,8 @@ export default function SharedLayout({
   return (
     <>
       <Navbar />
-      {children}
+      <main className="flex-1">{children}</main>
+      <Footer />
     </>
   );
 }
