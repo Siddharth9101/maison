@@ -5,9 +5,12 @@ import { Button, buttonVariants } from "../ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/app/contexts/cart-context";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { cartItems } = useCart();
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/products", label: "Shop" },
@@ -53,7 +56,11 @@ export function Navbar() {
             })}
           >
             <ShoppingCart className="size-5" />
-            <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground"></span>
+            {cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <Button
             variant="ghost"
