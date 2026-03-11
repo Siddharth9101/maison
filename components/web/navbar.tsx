@@ -13,7 +13,7 @@ export function Navbar() {
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/products", label: "Shop" },
+    { href: "/products?category=All", label: "Shop" },
     { href: "/products?category=new", label: "New Arrivals" },
     { href: "/products?category=sale", label: "Sale" },
   ];

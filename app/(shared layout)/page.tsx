@@ -50,7 +50,10 @@ export default function HomePage() {
               comfort, built to last.
             </p>
             <div className="flex gap-4">
-              <Link href="/products" className={buttonVariants({ size: "lg" })}>
+              <Link
+                href="/products?category=All"
+                className={buttonVariants({ size: "lg" })}
+              >
                 Shop Now <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
@@ -118,7 +121,7 @@ export default function HomePage() {
             Plus easy 30-day returns on all orders.
           </p>
           <Link
-            href="/products"
+            href="/products?category=All"
             className={buttonVariants({
               variant: "outline",
               size: "lg",

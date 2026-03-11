@@ -18,7 +18,10 @@ export function Footer() {
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/products" className="hover:text-foreground">
+                <Link
+                  href="/products?category=All"
+                  className="hover:text-foreground"
+                >
                   All Products
                 </Link>
               </li>
