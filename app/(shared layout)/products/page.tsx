@@ -49,9 +49,10 @@ export default function ProductsPage() {
       {/* heading and subheading */}
       <div className="mb-8">
         <h1 className="font-display text-4xl font-bold">Shop</h1>
-        <p className="mt-2 text-muted-foreground">25 products</p>
+        <p className="mt-2 text-muted-foreground">{filtered.length} products</p>
       </div>
 
+      {/* filters */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* categories */}
         <div className="flex flex-wrap gap-2">
@@ -82,12 +83,14 @@ export default function ProductsPage() {
         </Select>
       </div>
 
+      {/* filtered products */}
       <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
         {filtered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
+      {/* no products */}
       {filtered.length === 0 && (
         <div className="py-20 text-center text-muted-foreground">
           No products found in this category.
