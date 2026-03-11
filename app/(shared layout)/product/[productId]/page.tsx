@@ -35,16 +35,16 @@ export default function ProductDetailPage() {
   //   add to cart handler
   const handleAddToCart = () => {
     if (!selectedSize) {
-      toast.error("Please select a size");
+      toast.error("Please select a size", { position: "top-center" });
       return;
     }
     if (!selectedColor) {
-      toast.error("Please select a color");
+      toast.error("Please select a color", { position: "top-center" });
       return;
     }
 
     addToCart(product, selectedSize, selectedColor, quantity);
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} added to cart`, { position: "top-center" });
   };
 
   //   product found

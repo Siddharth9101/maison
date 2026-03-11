@@ -153,7 +153,7 @@ export default function CartPage() {
             Proceed to Checkout
           </Link>
           <Link
-            href="/products"
+            href="/products?category=All"
             className={buttonVariants({
               variant: "ghost",
               className: "mt-2 w-full",
