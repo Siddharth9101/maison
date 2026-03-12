@@ -15,15 +15,24 @@ async function main() {
   await prisma.category.deleteMany();
 
   const shoes = await prisma.category.create({
-    data: { name: "Shoes" },
+    data: {
+      name: "Shoes",
+      image: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519",
+    },
   });
 
   const tshirts = await prisma.category.create({
-    data: { name: "T-Shirts" },
+    data: {
+      name: "T-Shirts",
+      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+    },
   });
 
   const hoodies = await prisma.category.create({
-    data: { name: "Hoodies" },
+    data: {
+      name: "Hoodies",
+      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7",
+    },
   });
 
   async function createProduct(
