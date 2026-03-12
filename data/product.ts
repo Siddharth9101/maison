@@ -1,20 +1,4 @@
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  description: string;
-  category: string;
-  image: string;
-  images: string[];
-  sizes: string[];
-  colors: string[];
-  badge?: "Sale" | "New";
-  rating: number;
-  reviews: number;
-}
-
-export const products: Product[] = [
+export const products = [
   {
     id: "1",
     name: "Wool Blend Overcoat",

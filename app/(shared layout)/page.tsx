@@ -1,27 +1,68 @@
 import { buttonVariants } from "@/components/ui/button";
 import { ProductCard } from "@/components/web/product-card";
 import { products } from "@/data/product";
+import prisma from "@/lib/prisma";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function HomePage() {
-  const featured = products.slice(0, 4);
-  const newArrivals = products.filter((p) => p.badge === "New");
-  const categories = [
-    {
-      label: "Outerwear",
-      img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&h=400&fit=crop",
+export default async function HomePage() {
+  const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      image: true,
     },
-    {
-      label: "Knitwear",
-      img: "https://images.unsplash.com/photo-1679847628912-4c3e7402abc7?w=600&h=400&fit=crop",
+  });
+
+  const featuredInDb = await prisma.product.findMany({
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      badge: true,
+      thumbnail: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
-    {
-      label: "Accessories",
-      img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=400&fit=crop",
+    take: 4,
+  });
+
+  const featured = featuredInDb.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    badge: p.badge || undefined,
+  }));
+
+  const newArrivalsInDb = await prisma.product.findMany({
+    where: {
+      badge: "New",
     },
-  ];
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      badge: true,
+      thumbnail: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    take: 4,
+  });
+
+  const newArrivals = newArrivalsInDb.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    badge: p.badge || undefined,
+  }));
 
   return (
     <div className="min-h-screen">
@@ -72,20 +113,20 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {categories.map((cat) => (
             <Link
-              key={cat.label}
-              href={`/products?category=${cat.label}`}
+              key={cat.name}
+              href={`/products?category=${cat.name}`}
               className="group relative aspect-[4/3] overflow-hidden rounded-lg"
             >
               <Image
-                src={cat.img}
-                alt={cat.label}
+                src={cat.image}
+                alt={cat.name}
                 fill
                 className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-foreground/30 transition-colors group-hover:bg-foreground/40" />
               <div className="absolute bottom-4 left-4">
                 <h3 className="font-display text-xl font-semibold text-primary-foreground">
-                  {cat.label}
+                  {cat.name}
                 </h3>
               </div>
             </Link>
