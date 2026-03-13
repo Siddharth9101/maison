@@ -4,17 +4,17 @@ import prisma from "@/lib/prisma";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getHomeProducts } from "../actions";
+import { getCategories, getHomeProducts } from "../actions";
 import { toast } from "sonner";
 
 export default async function HomePage() {
-  const categories = await prisma.category.findMany({
-    select: {
-      id: true,
-      name: true,
-      image: true,
-    },
-  });
+  const categoriesRes = await getCategories();
+
+  if (!categoriesRes || !categoriesRes.success) {
+    toast.error("Failed to fetch categories", { position: "top-center" });
+    return;
+  }
+  const categories = categoriesRes.data;
 
   const products = await getHomeProducts();
   if (!products || !products.success) {
@@ -51,7 +51,7 @@ export default async function HomePage() {
             </p>
             <div className="flex gap-4">
               <Link
-                href="/products?category=All"
+                href="/products?page=1"
                 className={buttonVariants({ size: "lg" })}
               >
                 Shop Now <ArrowRight className="ml-2 h-4 w-4" />
@@ -73,7 +73,7 @@ export default async function HomePage() {
           {categories.map((cat) => (
             <Link
               key={cat.name}
-              href={`/products?category=${cat.name}`}
+              href={`/products?page=1&category=${cat.name}`}
               className="group relative aspect-[4/3] overflow-hidden rounded-lg"
             >
               <Image
@@ -121,7 +121,7 @@ export default async function HomePage() {
             Plus easy 30-day returns on all orders.
           </p>
           <Link
-            href="/products?category=All"
+            href="/products?page=1"
             className={buttonVariants({
               variant: "outline",
               size: "lg",

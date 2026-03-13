@@ -1,8 +1,41 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ActionResponse, HomeProduct } from "./types";
+import { ActionResponse, Category, HomeProduct } from "./types";
 
+export async function getCategories(): Promise<ActionResponse<Category[]>> {
+  try {
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    });
+
+    if (!categories) {
+      return {
+        success: false,
+        error: "Failed to fetch categories",
+        status: 500,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Categories fetched successfully",
+      data: categories,
+      status: 200,
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      success: false,
+      error: "Failed to fetch categories",
+      status: 500,
+    };
+  }
+}
 export async function getHomeProducts(): Promise<
   ActionResponse<{ featured: HomeProduct[]; newArrivals: HomeProduct[] }>
 > {
@@ -71,6 +104,90 @@ export async function getHomeProducts(): Promise<
       data: {
         featured,
         newArrivals,
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to fetch products",
+      status: 500,
+    };
+  }
+}
+
+export async function getProducts(
+  page: number = 1,
+  category?: string,
+  sort?: string,
+  badge?: string,
+  limit: number = 12,
+): Promise<ActionResponse<{ products: HomeProduct[]; totalPages: number }>> {
+  const skip = (page - 1) * limit;
+  let orderBy: any = { createdAt: "desc" };
+  if (sort === "price-asc") {
+    orderBy = { price: "asc" };
+  }
+  if (sort === "price-desc") {
+    orderBy = { price: "desc" };
+  }
+  if (sort === "rating") {
+    orderBy = { rating: "desc" };
+  }
+
+  let where: any = undefined;
+
+  if (category) {
+    where = {
+      category: {
+        name: category,
+      },
+    };
+  }
+
+  if (badge) {
+    where = {
+      ...where,
+      badge,
+    };
+  }
+
+  try {
+    const [products, totalPages] = await Promise.all([
+      prisma.product.findMany({
+        skip,
+        take: limit,
+        orderBy,
+        where,
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          badge: true,
+          thumbnail: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
+      prisma.product.count(),
+    ]);
+
+    const formattedProducts = products.map((p) => ({
+      ...p,
+      price: Number(p.price),
+      badge: p.badge || undefined,
+    }));
+
+    return {
+      success: true,
+      message: "Products fetched successfully",
+      status: 200,
+      data: {
+        products: formattedProducts,
+        totalPages: Math.ceil(totalPages / limit),
       },
     };
   } catch (err) {

@@ -16,6 +16,12 @@ export interface Product {
   updatedAt: Date;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  image: string;
+}
+
 export type HomeProduct = Pick<
   Product,
   "id" | "name" | "price" | "badge" | "thumbnail"
