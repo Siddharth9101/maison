@@ -1,12 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
-import { Product } from "@/app/types";
+import { HomeProduct } from "@/app/types";
 
-type HomeProduct = Pick<
-  Product,
-  "id" | "name" | "price" | "badge" | "thumbnail"
-> & { category: { name: string } };
 interface ProductCardProps {
   product: HomeProduct;
 }

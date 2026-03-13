@@ -15,3 +15,21 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type HomeProduct = Pick<
+  Product,
+  "id" | "name" | "price" | "badge" | "thumbnail"
+> & { category: { name: string } };
+
+export type ActionResponse<T> =
+  | {
+      success: true;
+      message: string;
+      data: T;
+      status: number;
+    }
+  | {
+      success: false;
+      error: string;
+      status: number;
+    };

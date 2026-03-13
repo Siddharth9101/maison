@@ -1,10 +1,11 @@
 import { buttonVariants } from "@/components/ui/button";
 import { ProductCard } from "@/components/web/product-card";
-import { products } from "@/data/product";
 import prisma from "@/lib/prisma";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getHomeProducts } from "../actions";
+import { toast } from "sonner";
 
 export default async function HomePage() {
   const categories = await prisma.category.findMany({
@@ -15,54 +16,12 @@ export default async function HomePage() {
     },
   });
 
-  const featuredInDb = await prisma.product.findMany({
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      badge: true,
-      thumbnail: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-    take: 4,
-  });
-
-  const featured = featuredInDb.map((p) => ({
-    ...p,
-    price: Number(p.price),
-    badge: p.badge || undefined,
-  }));
-
-  const newArrivalsInDb = await prisma.product.findMany({
-    where: {
-      badge: "New",
-    },
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      badge: true,
-      thumbnail: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
-    take: 4,
-  });
-
-  const newArrivals = newArrivalsInDb.map((p) => ({
-    ...p,
-    price: Number(p.price),
-    badge: p.badge || undefined,
-  }));
+  const products = await getHomeProducts();
+  if (!products || !products.success) {
+    toast.error("Failed to fetch products", { position: "top-center" });
+    return;
+  }
+  const { featured, newArrivals } = products.data;
 
   return (
     <div className="min-h-screen">
