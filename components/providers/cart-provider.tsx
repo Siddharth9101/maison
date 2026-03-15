@@ -1,14 +1,14 @@
 "use client";
 
 import { CartContext, CartItem } from "@/app/contexts/cart-context";
-import { Product } from "@/data/product";
+import { SingleProduct } from "@/app/types";
 import { ReactNode, useState } from "react";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const addToCart = (
-    product: Product,
+    product: SingleProduct,
     size: string,
     color: string,
     quantity = 1,

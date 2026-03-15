@@ -245,16 +245,6 @@ export function SingleProductComp({ product }: { product: SingleProduct }) {
             >
               <ShoppingCart className="size-4" /> Add to Cart
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => {
-                handleAddToCart();
-                router.push("/cart");
-              }}
-            >
-              Buy Now
-            </Button>
           </div>
         </div>
       </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { Product } from "@/data/product";
 import { createContext, useContext } from "react";
+import { SingleProduct } from "../types";
 
 export interface CartItem {
-  product: Product;
+  product: SingleProduct;
   quantity: number;
   size: string;
   color: string;
@@ -13,7 +13,7 @@ export interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (
-    product: Product,
+    product: SingleProduct,
     size: string,
     color: string,
     quantity?: number,

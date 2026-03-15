@@ -21,7 +21,7 @@ export default function CartPage() {
           Looks like you haven't added anything yet.
         </p>
         <Link
-          href="/products?category=All"
+          href="/products?page=1"
           className={buttonVariants({ className: "mt-6" })}
         >
           Continue Shopping
@@ -50,11 +50,11 @@ export default function CartPage() {
               className="flex gap-4 rounded-lg border bg-card p-4"
             >
               <Link
-                href={`/product/${item.product.id}`}
+                href={`/products/${item.product.id}`}
                 className="relative size-20 flex-shrink-0 overflow-hidden rounded-md bg-secondary"
               >
                 <Image
-                  src={item.product.image}
+                  src={item.product.thumbnail}
                   alt={item.product.name}
                   fill
                   className="size-full object-cover"
@@ -63,7 +63,7 @@ export default function CartPage() {
               <div className="flex flex-1 flex-col justify-between">
                 <div>
                   <Link
-                    href={`/product/${item.product.id}`}
+                    href={`/products/${item.product.id}`}
                     className="font-medium hover:underline"
                   >
                     {item.product.name}
@@ -153,7 +153,7 @@ export default function CartPage() {
             Proceed to Checkout
           </Link>
           <Link
-            href="/products?category=All"
+            href="/products?page=1"
             className={buttonVariants({
               variant: "ghost",
               className: "mt-2 w-full",
