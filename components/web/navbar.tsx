@@ -14,8 +14,8 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/products?page=1", label: "Shop" },
-    { href: "/products?category=new", label: "New Arrivals" },
-    { href: "/products?category=sale", label: "Sale" },
+    { href: "/products?page=1&badge=New", label: "New Arrivals" },
+    { href: "/products?page=1&badge=Sale", label: "Sale" },
   ];
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">

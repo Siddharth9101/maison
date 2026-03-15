@@ -39,3 +39,26 @@ export type ActionResponse<T> =
       error: string;
       status: number;
     };
+
+export interface SingleProduct {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  price: number;
+  originalPrice: number | undefined;
+  rating: number;
+  badge?: "Sale" | "New";
+  reviews: number;
+  variants: {
+    id: string;
+    size: string;
+    color: string;
+    images: string[];
+    stock: number;
+  }[];
+  category: {
+    id: string;
+    name: string;
+  };
+}

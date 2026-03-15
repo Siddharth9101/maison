@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ActionResponse, Category, HomeProduct } from "./types";
+import { ActionResponse, Category, HomeProduct, SingleProduct } from "./types";
 
 export async function getCategories(): Promise<ActionResponse<Category[]>> {
   try {
@@ -195,6 +195,74 @@ export async function getProducts(
     return {
       success: false,
       error: "Failed to fetch products",
+      status: 500,
+    };
+  }
+}
+
+export async function getProductById(
+  productId: string,
+): Promise<ActionResponse<SingleProduct>> {
+  try {
+    const res = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        thumbnail: true,
+        originalPrice: true,
+        price: true,
+        badge: true,
+        rating: true,
+        reviews: true,
+        variants: {
+          select: {
+            id: true,
+            size: true,
+            color: true,
+            images: true,
+            stock: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      return {
+        success: false,
+        error: "Product not found",
+        status: 404,
+      };
+    }
+
+    const formattedProduct = {
+      ...res,
+      price: Number(res.price),
+      originalPrice: res.originalPrice ? Number(res.originalPrice) : undefined,
+      rating: Number(res.rating),
+      badge: res.badge || undefined,
+    };
+
+    return {
+      success: true,
+      message: "Product fetched successfully",
+      status: 200,
+      data: formattedProduct,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to fetch product",
       status: 500,
     };
   }
