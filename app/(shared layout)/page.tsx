@@ -1,6 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
 import { ProductCard } from "@/components/web/product-card";
-import prisma from "@/lib/prisma";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

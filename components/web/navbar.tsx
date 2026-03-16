@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
 import { ThemeToggle } from "./theme-toggle";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { LogIn, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/app/contexts/cart-context";
+import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -62,6 +63,22 @@ export function Navbar() {
               </span>
             )}
           </Link>
+          <Show when="signed-out">
+            <SignInButton>
+              <button
+                type="button"
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <span className="md:hidden">
+                  <LogIn className="size-4" />
+                </span>
+                <span className="hidden md:inline">Sign in</span>
+              </button>
+            </SignInButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
           <Button
             variant="ghost"
             size="icon"
