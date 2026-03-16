@@ -5,22 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useUser } from "@clerk/nextjs";
 import { ArrowLeft, Check, CreditCard } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { SubmitEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const { cartItems, total, clearCart } = useCart();
+  const { user } = useUser();
   const [step, setStep] = useState<"address" | "payment" | "confirmation">(
     "address",
   );
   const router = useRouter();
   const [address, setAddress] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.emailAddresses[0]?.emailAddress || "",
     phone: "",
     street: "",
     apt: "",
@@ -60,12 +62,10 @@ export default function CheckoutPage() {
   const shipping = total >= 500 ? 0 : 39.99;
   const grandTotal = total + shipping;
 
-  const handleAddressSubmit = (e: SubmitEvent) => {
+  const handleAddressSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
-      !address.firstName ||
-      !address.lastName ||
-      !address.email ||
+      !address.phone ||
       !address.street ||
       !address.city ||
       !address.state ||
@@ -78,7 +78,7 @@ export default function CheckoutPage() {
     }
     setStep("payment");
   };
-  const handlePaymentSubmit = (e: SubmitEvent) => {
+  const handlePaymentSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
       !payment.cardNumber ||
@@ -162,12 +162,16 @@ export default function CheckoutPage() {
               <h2 className="font-display text-2xl font-bold">
                 Shipping Address
               </h2>
+              <p className="text-sm text-muted-foreground font-bold">
+                All fields marked with * are required.
+              </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name *</Label>
                   <Input
                     id="firstName"
                     value={address.firstName}
+                    disabled={!!user?.firstName}
                     onChange={(e) =>
                       setAddress({ ...address, firstName: e.target.value })
                     }
@@ -177,6 +181,7 @@ export default function CheckoutPage() {
                   <Label htmlFor="lastName">Last Name *</Label>
                   <Input
                     id="lastName"
+                    disabled={!!user?.lastName}
                     value={address.lastName}
                     onChange={(e) =>
                       setAddress({ ...address, lastName: e.target.value })
@@ -190,6 +195,7 @@ export default function CheckoutPage() {
                   <Input
                     id="email"
                     type="email"
+                    disabled={!!user?.emailAddresses[0]?.emailAddress}
                     value={address.email}
                     onChange={(e) =>
                       setAddress({ ...address, email: e.target.value })
