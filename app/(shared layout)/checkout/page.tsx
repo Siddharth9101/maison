@@ -44,6 +44,7 @@ export default function CheckoutPage() {
       if (!variant || variant.stock < item.quantity) {
         toast.error(
           `Only ${variant?.stock ?? 0} are available for ${item.product.name} ${item.size}/${item.color}`,
+          { position: "top-center" },
         );
         router.push("/cart");
         return;
