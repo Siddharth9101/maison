@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Check, CreditCard } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function CheckoutPage() {
@@ -35,6 +35,21 @@ export default function CheckoutPage() {
     expiry: "",
     cvv: "",
   });
+
+  useEffect(() => {
+    for (const item of cartItems) {
+      const variant = item.product.variants.find(
+        (v) => v.size === item.size && v.color === item.color,
+      );
+      if (!variant || variant.stock < item.quantity) {
+        toast.error(
+          `Only ${variant?.stock ?? 0} are available for ${item.product.name} ${item.size}/${item.color}`,
+        );
+        router.push("/cart");
+        return;
+      }
+    }
+  }, [cartItems, router]);
 
   if (cartItems.length === 0 && step !== "confirmation") {
     router.push("/cart");
@@ -325,7 +340,7 @@ export default function CheckoutPage() {
               >
                 <div className="relative h-14 w-10 flex-shrink-0 overflow-hidden rounded bg-secondary">
                   <Image
-                    src={item.product.image}
+                    src={item.product.thumbnail}
                     alt=""
                     fill
                     className="h-full w-full object-cover"
