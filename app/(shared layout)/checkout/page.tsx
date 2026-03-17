@@ -1,12 +1,13 @@
 "use client";
 
+import { createUserAddress, getUserAddressById } from "@/app/actions";
 import { useCart } from "@/app/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@clerk/nextjs";
-import { ArrowLeft, Check, CreditCard } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitEvent, useEffect, useState } from "react";
@@ -15,9 +16,7 @@ import { toast } from "sonner";
 export default function CheckoutPage() {
   const { cartItems, total, clearCart } = useCart();
   const { user } = useUser();
-  const [step, setStep] = useState<"address" | "payment" | "confirmation">(
-    "address",
-  );
+  const [step, setStep] = useState<"address" | "confirmation">("address");
   const router = useRouter();
   const [address, setAddress] = useState({
     firstName: user?.firstName || "",
@@ -31,12 +30,27 @@ export default function CheckoutPage() {
     pin: "",
     country: "",
   });
-  const [payment, setPayment] = useState({
-    cardNumber: "",
-    cardName: "",
-    expiry: "",
-    cvv: "",
-  });
+
+  useEffect(() => {
+    // fetch users address db
+    (async () => {
+      if (!user?.id) return;
+      const res = await getUserAddressById(user.id);
+
+      if (res && res.success && res.data) {
+        const addr = res.data;
+        setAddress((p) => ({
+          ...p,
+          street: addr.street,
+          apt: addr.apt ?? "",
+          city: addr.city,
+          state: addr.state,
+          pin: addr.pin,
+          country: addr.country,
+        }));
+      }
+    })();
+  }, [user?.id]);
 
   useEffect(() => {
     for (const item of cartItems) {
@@ -56,7 +70,7 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0 && step !== "confirmation") {
     router.push("/cart");
-    return null;
+    return;
   }
 
   const shipping = total >= 500 ? 0 : 39.99;
@@ -76,23 +90,25 @@ export default function CheckoutPage() {
       });
       return;
     }
-    setStep("payment");
-  };
-  const handlePaymentSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (
-      !payment.cardNumber ||
-      !payment.cardName ||
-      !payment.expiry ||
-      !payment.cvv
-    ) {
-      toast.error("Please fill in all payment fields", {
+    if (!user?.id) return;
+    const addData = {
+      phone: address.phone,
+      street: address.street,
+      apt: address.apt,
+      city: address.city,
+      state: address.state,
+      pin: address.pin,
+      country: address.country,
+    };
+    const res = await createUserAddress(user?.id, addData);
+    if (!res || !res.success) {
+      toast.error("Failed to save address. Please try again.", {
         position: "top-center",
       });
       return;
     }
-    clearCart();
-    setStep("confirmation");
+
+    // TODO: Razorpay integration for payment processing
   };
 
   //   step confirmation
@@ -118,6 +134,7 @@ export default function CheckoutPage() {
   }
   return (
     <div className="container py-8">
+      {/*  go back button */}
       <Button
         variant="ghost"
         className="mb-6 gap-2"
@@ -131,31 +148,6 @@ export default function CheckoutPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          {/* Steps indicator */}
-          <div className="mb-8 flex items-center gap-4">
-            <div
-              className={`flex items-center gap-2 ${step === "address" ? "text-foreground" : "text-muted-foreground"}`}
-            >
-              <span
-                className={`flex size-8 items-center justify-center rounded-full text-sm font-medium ${step === "address" ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"}`}
-              >
-                1
-              </span>
-              <span className="text-sm font-medium">Address</span>
-            </div>
-            <div className="h-px flex-1 bg-border" />
-            <div
-              className={`flex items-center gap-2 ${step === "payment" ? "text-foreground" : "text-muted-foreground"}`}
-            >
-              <span
-                className={`flex size-8 items-center justify-center rounded-full text-sm font-medium ${step === "payment" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
-              >
-                2
-              </span>
-              <span className="text-sm font-medium">Payment</span>
-            </div>
-          </div>
-
           {/* step address */}
           {step === "address" && (
             <form onSubmit={handleAddressSubmit} className="space-y-6">
@@ -268,68 +260,6 @@ export default function CheckoutPage() {
               </div>
               <Button type="submit" size="lg" className="w-full sm:w-auto">
                 Continue to Payment
-              </Button>
-            </form>
-          )}
-
-          {/* step payment */}
-          {step === "payment" && (
-            <form onSubmit={handlePaymentSubmit} className="space-y-6">
-              <h2 className="font-display text-2xl font-bold">
-                Payment Details
-              </h2>
-              <div className="space-y-2">
-                <Label htmlFor="cardName">Name on Card *</Label>
-                <Input
-                  id="cardName"
-                  value={payment.cardName}
-                  onChange={(e) =>
-                    setPayment({ ...payment, cardName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cardNumber">Card Number *</Label>
-                <Input
-                  id="cardNumber"
-                  placeholder="1234 5678 9012 3456"
-                  value={payment.cardNumber}
-                  onChange={(e) =>
-                    setPayment({ ...payment, cardNumber: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="expiry">Expiry Date *</Label>
-                  <Input
-                    id="expiry"
-                    placeholder="MM/YY"
-                    value={payment.expiry}
-                    onChange={(e) =>
-                      setPayment({ ...payment, expiry: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cvv">CVV *</Label>
-                  <Input
-                    id="cvv"
-                    placeholder="123"
-                    value={payment.cvv}
-                    onChange={(e) =>
-                      setPayment({ ...payment, cvv: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full gap-2 sm:w-auto"
-              >
-                <CreditCard className="size-4" /> Place Order — $
-                {grandTotal.toFixed(2)}
               </Button>
             </form>
           )}

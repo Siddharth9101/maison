@@ -1,7 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ActionResponse, Category, HomeProduct, SingleProduct } from "./types";
+import {
+  ActionResponse,
+  Address,
+  Category,
+  HomeProduct,
+  SingleProduct,
+} from "./types";
 
 export async function getCategories(): Promise<ActionResponse<Category[]>> {
   try {
@@ -263,6 +269,84 @@ export async function getProductById(
     return {
       success: false,
       error: "Failed to fetch product",
+      status: 500,
+    };
+  }
+}
+
+export async function getUserAddressById(
+  userId: string,
+): Promise<ActionResponse<Address>> {
+  try {
+    const address = await prisma.address.findUnique({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        street: true,
+        apt: true,
+        city: true,
+        state: true,
+        pin: true,
+        country: true,
+        phone: true,
+        userId: true,
+      },
+    });
+    if (!address) {
+      return {
+        success: false,
+        error: "Address not found",
+        status: 404,
+      };
+    }
+    return {
+      success: true,
+      message: "Address fetched successfully",
+      status: 200,
+      data: address,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to fetch user address",
+      status: 500,
+    };
+  }
+}
+
+export async function createUserAddress(
+  userId: string,
+  addressData: Omit<Address, "id" | "userId">,
+) {
+  try {
+    const address = await prisma.address.create({
+      data: {
+        ...addressData,
+        userId,
+      },
+    });
+
+    if (!address) {
+      return {
+        success: false,
+        error: "Failed to create user address",
+        status: 500,
+      };
+    }
+    return {
+      success: true,
+      message: "Address created successfully",
+      status: 201,
+      data: address,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to create user address",
       status: 500,
     };
   }

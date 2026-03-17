@@ -62,3 +62,15 @@ export interface SingleProduct {
     name: string;
   };
 }
+
+export interface Address {
+  id: string;
+  phone: string;
+  street: string;
+  apt: string | null;
+  city: string;
+  state: string;
+  pin: string;
+  country: string;
+  userId: string;
+}
