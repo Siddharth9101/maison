@@ -1,6 +1,12 @@
 "use client";
 
-import { createUserAddress, getUserAddressById } from "@/app/actions";
+import {
+  createOrder,
+  createUserAddress,
+  getUserAddressById,
+  getVariantBySku,
+  verifyPayment,
+} from "@/app/actions";
 import { useCart } from "@/app/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +24,7 @@ export default function CheckoutPage() {
   const { user } = useUser();
   const [step, setStep] = useState<"address" | "confirmation">("address");
   const router = useRouter();
+  const [isPending, setPending] = useState(false);
   const [address, setAddress] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -30,6 +37,15 @@ export default function CheckoutPage() {
     pin: "",
     country: "",
   });
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   useEffect(() => {
     // fetch users address db
@@ -41,6 +57,7 @@ export default function CheckoutPage() {
         const addr = res.data;
         setAddress((p) => ({
           ...p,
+          phone: addr.phone,
           street: addr.street,
           apt: addr.apt ?? "",
           city: addr.city,
@@ -53,19 +70,28 @@ export default function CheckoutPage() {
   }, [user?.id]);
 
   useEffect(() => {
-    for (const item of cartItems) {
-      const variant = item.product.variants.find(
-        (v) => v.size === item.size && v.color === item.color,
-      );
-      if (!variant || variant.stock < item.quantity) {
-        toast.error(
-          `Only ${variant?.stock ?? 0} are available for ${item.product.name} ${item.size}/${item.color}`,
-          { position: "top-center" },
-        );
-        router.push("/cart");
-        return;
+    (async () => {
+      for (const item of cartItems) {
+        const res = await getVariantBySku(item.sku);
+        if (!res || !res.success) {
+          toast.error(
+            `Failed to fetch stock for ${item.product.name} ${item.size}/${item.color}`,
+            { position: "top-center" },
+          );
+          router.push("/cart");
+          return;
+        }
+        const variant = res.data;
+        if (!variant || variant.stock < item.quantity) {
+          toast.error(
+            `Only ${variant?.stock ?? 0} are available for ${item.product.name} ${item.size}/${item.color}`,
+            { position: "top-center" },
+          );
+          router.push("/cart");
+          return;
+        }
       }
-    }
+    })();
   }, [cartItems, router]);
 
   if (cartItems.length === 0 && step !== "confirmation") {
@@ -76,8 +102,9 @@ export default function CheckoutPage() {
   const shipping = total >= 500 ? 0 : 39.99;
   const grandTotal = total + shipping;
 
-  const handleAddressSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleAddressSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setPending(true);
     if (
       !address.phone ||
       !address.street ||
@@ -107,8 +134,63 @@ export default function CheckoutPage() {
       });
       return;
     }
+    handlePayment();
+    setPending(false);
+  };
 
-    // TODO: Razorpay integration for payment processing
+  const handlePayment = async () => {
+    const res = await loadRazorpay();
+    if (!res) {
+      toast.error("Razorpay SDK failed to load", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    const orderRes = await createOrder(cartItems);
+
+    if (!orderRes || !orderRes.success) {
+      toast.error("Failed to create order. Please try again.", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    const { order } = orderRes.data;
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: "Maison",
+      description: "Thank you for your purchase!",
+      order_id: order.id,
+
+      handler: async function (response: any) {
+        // send to backend for verification
+        const res = await verifyPayment(response, cartItems);
+
+        if (!res || !res.success) {
+          toast.error("Failed to verify payment. Please try again.", {
+            position: "top-center",
+          });
+          return;
+        }
+
+        setStep("confirmation");
+        clearCart();
+      },
+
+      prefill: {
+        name: "Siddharth Saxena",
+        email: "siddharthsaxena9101@gmail.com",
+      },
+
+      theme: {
+        color: "#000000",
+      },
+    };
+    const paymentObject = new (window as any).Razorpay(options);
+    paymentObject.open();
   };
 
   //   step confirmation
@@ -120,11 +202,9 @@ export default function CheckoutPage() {
         </div>
         <h1 className="font-display text-3xl font-bold">Order Confirmed!</h1>
         <p className="mt-2 text-muted-foreground">
-          Thank you for your purchase. You'll receive a confirmation email
-          shortly.
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Order #MAI-abfiuwgrffafs
+          Thank you for your purchase.
+          {/* TODO: Email service -  You'll receive a confirmation email
+          shortly. */}
         </p>
         <Button className="mt-6" onClick={() => router.push("/")}>
           Continue Shopping
@@ -258,7 +338,12 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <Button type="submit" size="lg" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full sm:w-auto"
+                disabled={isPending}
+              >
                 Continue to Payment
               </Button>
             </form>

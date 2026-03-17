@@ -81,6 +81,7 @@ export default function CartPage() {
                       onClick={() =>
                         updateQuantity(
                           item.product.id,
+                          item.sku,
                           item.size,
                           item.color,
                           item.quantity - 1,
@@ -99,6 +100,7 @@ export default function CartPage() {
                       onClick={() =>
                         updateQuantity(
                           item.product.id,
+                          item.sku,
                           item.size,
                           item.color,
                           item.quantity + 1,
@@ -117,7 +119,12 @@ export default function CartPage() {
                       size="icon"
                       className="size-7 text-muted-foreground hover:text-destructive"
                       onClick={() =>
-                        removeFromCart(item.product.id, item.size, item.color)
+                        removeFromCart(
+                          item.product.id,
+                          item.sku,
+                          item.size,
+                          item.color,
+                        )
                       }
                     >
                       <Trash2 className="size-4" />

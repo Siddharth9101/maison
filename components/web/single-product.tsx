@@ -85,7 +85,13 @@ export function SingleProductComp({ product }: { product: SingleProduct }) {
       return;
     }
 
-    addToCart(product, selectedSize, selectedColor, quantity);
+    addToCart(
+      product,
+      selectedVariant.sku,
+      selectedSize,
+      selectedColor,
+      quantity,
+    );
     toast.success(`${product.name} added to cart`, { position: "top-center" });
   };
   return (

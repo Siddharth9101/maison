@@ -16,6 +16,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [cartItems]);
   const addToCart = (
     product: SingleProduct,
+    sku: string,
     size: string,
     color: string,
     quantity = 1,
@@ -24,6 +25,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const existing = prev.find(
         (item) =>
           item.product.id === product.id &&
+          item.sku === sku &&
           item.size === size &&
           item.color === color,
       );
@@ -31,21 +33,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return prev.map((item) =>
           item.product.id === product.id &&
           item.size === size &&
+          item.sku === sku &&
           item.color === color
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
       }
-      return [...prev, { product, quantity, size, color }];
+      return [...prev, { product, sku, quantity, size, color }];
     });
   };
 
-  const removeFromCart = (productId: string, size: string, color: string) => {
+  const removeFromCart = (
+    productId: string,
+    sku: string,
+    size: string,
+    color: string,
+  ) => {
     setCartItems((prev) =>
       prev.filter(
         (item) =>
           !(
             item.product.id === productId &&
+            item.sku === sku &&
             item.size === size &&
             item.color === color
           ),
@@ -55,14 +64,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = (
     productId: string,
+    sku: string,
     size: string,
     color: string,
     quantity: number,
   ) => {
-    if (quantity < 1) return removeFromCart(productId, size, color);
+    if (quantity < 1) return removeFromCart(productId, sku, size, color);
     setCartItems((prev) =>
       prev.map((item) =>
         item.product.id === productId &&
+        item.sku === sku &&
         item.size === size &&
         item.color === color
           ? { ...item, quantity }

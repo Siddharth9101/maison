@@ -5,6 +5,7 @@ import { SingleProduct } from "../types";
 
 export interface CartItem {
   product: SingleProduct;
+  sku: string;
   quantity: number;
   size: string;
   color: string;
@@ -14,13 +15,20 @@ interface CartContextType {
   cartItems: CartItem[];
   addToCart: (
     product: SingleProduct,
+    sku: string,
     size: string,
     color: string,
     quantity?: number,
   ) => void;
-  removeFromCart: (productId: string, size: string, color: string) => void;
+  removeFromCart: (
+    productId: string,
+    sku: string,
+    size: string,
+    color: string,
+  ) => void;
   updateQuantity: (
     productId: string,
+    sku: string,
     size: string,
     color: string,
     quantity: number,

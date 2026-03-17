@@ -52,6 +52,7 @@ export interface SingleProduct {
   reviews: number;
   variants: {
     id: string;
+    sku: string;
     size: string;
     color: string;
     images: string[];

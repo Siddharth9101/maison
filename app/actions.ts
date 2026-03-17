@@ -1,4 +1,5 @@
 "use server";
+import crypto from "crypto";
 
 import prisma from "@/lib/prisma";
 import {
@@ -8,6 +9,8 @@ import {
   HomeProduct,
   SingleProduct,
 } from "./types";
+import razorpay from "@/lib/razorpay";
+import { CartItem } from "./contexts/cart-context";
 
 export async function getCategories(): Promise<ActionResponse<Category[]>> {
   try {
@@ -227,6 +230,7 @@ export async function getProductById(
         variants: {
           select: {
             id: true,
+            sku: true,
             size: true,
             color: true,
             images: true,
@@ -317,11 +321,63 @@ export async function getUserAddressById(
   }
 }
 
+export async function getVariantBySku(
+  sku: string,
+): Promise<ActionResponse<SingleProduct["variants"][0]>> {
+  try {
+    const res = await prisma.productVariant.findUnique({
+      where: { sku },
+      select: {
+        id: true,
+        sku: true,
+        size: true,
+        color: true,
+        images: true,
+        stock: true,
+      },
+    });
+
+    if (!res) {
+      return {
+        success: false,
+        error: "Variant not found",
+        status: 404,
+      };
+    }
+    return {
+      success: true,
+      message: "Variant fetched successfully",
+      status: 200,
+      data: res,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to fetch product variant",
+      status: 500,
+    };
+  }
+}
+
 export async function createUserAddress(
   userId: string,
   addressData: Omit<Address, "id" | "userId">,
-) {
+): Promise<ActionResponse<Address | null>> {
   try {
+    const existingAddress = await prisma.address.findUnique({
+      where: {
+        userId,
+      },
+    });
+    if (existingAddress) {
+      return {
+        success: true,
+        message: "Address already exists for this user",
+        status: 400,
+        data: null,
+      };
+    }
     const address = await prisma.address.create({
       data: {
         ...addressData,
@@ -347,6 +403,101 @@ export async function createUserAddress(
     return {
       success: false,
       error: "Failed to create user address",
+      status: 500,
+    };
+  }
+}
+
+export async function createOrder(
+  cartItems: CartItem[],
+): Promise<ActionResponse<{ order: any }>> {
+  const amount = cartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
+  try {
+    const options = {
+      amount: amount * 100,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    if (!order) {
+      return {
+        success: false,
+        error: "Failed to create order",
+        status: 500,
+      };
+    }
+    return {
+      success: true,
+      message: "Order created successfully",
+      status: 201,
+      data: { order },
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to create order",
+      status: 500,
+    };
+  }
+}
+
+export async function verifyPayment(
+  response: any,
+  cartItems: CartItem[],
+): Promise<ActionResponse<null>> {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      response;
+
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSign = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(sign)
+      .digest("hex");
+
+    if (expectedSign === razorpay_signature) {
+      cartItems.forEach(async (item) => {
+        const variant = await getVariantBySku(item.sku);
+        if (!variant || !variant.success) {
+          return {
+            success: false,
+            error: `Variant with SKU ${item.sku} not found`,
+            status: 404,
+          };
+        }
+        await prisma.productVariant.update({
+          where: {
+            sku: item.sku,
+          },
+          data: {
+            stock: variant.data.stock - item.quantity,
+          },
+        });
+      });
+      return {
+        success: true,
+        message: "Payment verified successfully",
+        status: 200,
+        data: null,
+      };
+    } else {
+      return {
+        success: false,
+        error: "Invalid payment signature",
+        status: 400,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to verify payment",
       status: 500,
     };
   }
