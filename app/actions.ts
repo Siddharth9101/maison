@@ -11,6 +11,7 @@ import {
 } from "./types";
 import razorpay from "@/lib/razorpay";
 import { CartItem } from "./contexts/cart-context";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getCategories(): Promise<ActionResponse<Category[]>> {
   try {
@@ -282,6 +283,14 @@ export async function getUserAddressById(
   userId: string,
 ): Promise<ActionResponse<Address>> {
   try {
+    const user = await auth();
+    if (!user || !user.userId) {
+      return {
+        success: false,
+        error: "User not authenticated",
+        status: 401,
+      };
+    }
     const address = await prisma.address.findUnique({
       where: {
         userId,
@@ -365,6 +374,14 @@ export async function createUserAddress(
   addressData: Omit<Address, "id" | "userId">,
 ): Promise<ActionResponse<Address | null>> {
   try {
+    const user = await auth();
+    if (!user || !user.userId) {
+      return {
+        success: false,
+        error: "User not authenticated",
+        status: 401,
+      };
+    }
     const existingAddress = await prisma.address.findUnique({
       where: {
         userId,
@@ -416,6 +433,14 @@ export async function createOrder(
     0,
   );
   try {
+    const user = await auth();
+    if (!user || !user.userId) {
+      return {
+        success: false,
+        error: "User not authenticated",
+        status: 401,
+      };
+    }
     const options = {
       amount: amount * 100,
       currency: "INR",
@@ -431,6 +456,23 @@ export async function createOrder(
         status: 500,
       };
     }
+    const items = cartItems.map((item) => ({
+      sku: item.sku,
+      price: item.product.price,
+      quantity: item.quantity,
+      color: item.color,
+      size: item.size,
+    }));
+
+    await prisma.order.create({
+      data: {
+        userId: user.userId,
+        items,
+        total: amount,
+        status: "Pending",
+        razorpayOrderId: order.id,
+      },
+    });
     return {
       success: true,
       message: "Order created successfully",
@@ -452,6 +494,14 @@ export async function verifyPayment(
   cartItems: CartItem[],
 ): Promise<ActionResponse<null>> {
   try {
+    const user = await auth();
+    if (!user || !user.userId) {
+      return {
+        success: false,
+        error: "User not authenticated",
+        status: 401,
+      };
+    }
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       response;
 
@@ -480,6 +530,15 @@ export async function verifyPayment(
           },
         });
       });
+      await prisma.order.update({
+        where: {
+          razorpayOrderId: razorpay_order_id,
+        },
+        data: {
+          status: "Paid",
+          razorpayPaymentId: razorpay_payment_id,
+        },
+      });
       return {
         success: true,
         message: "Payment verified successfully",
@@ -498,6 +557,39 @@ export async function verifyPayment(
     return {
       success: false,
       error: "Failed to verify payment",
+      status: 500,
+    };
+  }
+}
+
+export async function deleteOrder(
+  orderId: string,
+): Promise<ActionResponse<null>> {
+  try {
+    const res = await prisma.order.delete({
+      where: {
+        razorpayOrderId: orderId,
+      },
+    });
+
+    if (!res) {
+      return {
+        success: false,
+        error: "Failed to delete order",
+        status: 500,
+      };
+    }
+    return {
+      success: true,
+      message: "Order deleted successfully",
+      status: 200,
+      data: null,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      success: false,
+      error: "Failed to delete order",
       status: 500,
     };
   }

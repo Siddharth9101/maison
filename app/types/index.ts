@@ -75,3 +75,19 @@ export interface Address {
   country: string;
   userId: string;
 }
+
+export interface Order {
+  orderId: string;
+  userId: string;
+  items: {
+    sku: string;
+    price: number;
+    quantity: number;
+    color: string;
+    size: string;
+  }[];
+  total: number;
+  status: "Pending" | "Paid";
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+}

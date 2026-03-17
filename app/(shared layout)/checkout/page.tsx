@@ -3,6 +3,7 @@
 import {
   createOrder,
   createUserAddress,
+  deleteOrder,
   getUserAddressById,
   getVariantBySku,
   verifyPayment,
@@ -13,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@clerk/nextjs";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitEvent, useEffect, useState } from "react";
@@ -190,6 +191,16 @@ export default function CheckoutPage() {
       },
     };
     const paymentObject = new (window as any).Razorpay(options);
+
+    paymentObject.on("payment.failed", async function (response: any) {
+      console.log("Payment failed:", response.error);
+
+      await deleteOrder(order.id);
+
+      toast.error("Payment failed. Please try again.", {
+        position: "top-center",
+      });
+    });
     paymentObject.open();
   };
 
@@ -344,7 +355,11 @@ export default function CheckoutPage() {
                 className="w-full sm:w-auto"
                 disabled={isPending}
               >
-                Continue to Payment
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  "Continue to Payment"
+                )}
               </Button>
             </form>
           )}
