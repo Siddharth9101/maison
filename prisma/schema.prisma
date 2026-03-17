@@ -76,3 +76,21 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum OrderStatus {
+  Pending
+  Paid
+}
+
+model Order {
+  id String @id @default(uuid())
+  orderId String @unique
+  userId String
+  items Json
+  total Decimal @db.Decimal(10,2)
+  status OrderStatus
+  razorpayOrderId String? @unique
+  razorpayPaymentId String? @unique
+  createdAtra  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
