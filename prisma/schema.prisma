@@ -71,5 +71,8 @@ model Address {
   pin       String
   country   String
 
-  userId    String
+  userId    String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
