@@ -20,12 +20,6 @@ import { useRouter } from "next/navigation";
 import { SubmitEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Checkout | Maison",
-  description: "Complete your purchase and review your order details.",
-};
 
 export default function CheckoutPage() {
   const { cartItems, total, clearCart } = useCart();

@@ -4,15 +4,9 @@ import { useCart } from "@/app/contexts/cart-context";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-export const metadata: Metadata = {
-  title: "Cart | Maison",
-  description: "Review your selected items and proceed to checkout.",
-};
 
 export default function CartPage() {
   const router = useRouter();
