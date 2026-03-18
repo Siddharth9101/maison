@@ -8,6 +8,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { SingleProduct } from "@/app/types";
 
+const VARIANT_BUTTON_CLASS = (isSelected: boolean) =>
+  `rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+    isSelected
+      ? "border-accent bg-accent text-accent-foreground"
+      : "border-border bg-background hover:border-foreground/30"
+  }`;
+
 export function SingleProductComp({ product }: { product: SingleProduct }) {
   const { addToCart } = useCart();
   const router = useRouter();
@@ -178,21 +185,15 @@ export function SingleProductComp({ product }: { product: SingleProduct }) {
           <div>
             <p className="mb-2 text-sm font-medium">Size</p>
             <div className="flex flex-wrap gap-2">
-              {sizes.map((size) => {
-                return (
-                  <button
-                    key={size}
-                    onClick={() => handleSizeChange(size)}
-                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                      selectedSize === size
-                        ? "border-accent bg-accent text-accent-foreground"
-                        : "border-border bg-background hover:border-foreground/30"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => handleSizeChange(size)}
+                  className={VARIANT_BUTTON_CLASS(selectedSize === size)}
+                >
+                  {size}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -200,23 +201,15 @@ export function SingleProductComp({ product }: { product: SingleProduct }) {
           <div>
             <p className="mb-2 text-sm font-medium">Color</p>
             <div className="flex flex-wrap gap-2">
-              {colors &&
-                colors.length > 0 &&
-                colors.map((color) => {
-                  return (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                        selectedColor === color
-                          ? "border-accent bg-accent text-accent-foreground"
-                          : "border-border bg-background hover:border-foreground/30"
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  );
-                })}
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={VARIANT_BUTTON_CLASS(selectedColor === color)}
+                >
+                  {color}
+                </button>
+              ))}
             </div>
           </div>
 

@@ -6,18 +6,19 @@ import { ThemeToggle } from "./theme-toggle";
 import { LogIn, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/app/contexts/cart-context";
-import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, Show } from "@clerk/nextjs";
+
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/products?page=1", label: "Shop" },
+  { href: "/products?page=1&badge=New", label: "New Arrivals" },
+  { href: "/products?page=1&badge=Sale", label: "Sale" },
+];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/products?page=1", label: "Shop" },
-    { href: "/products?page=1&badge=New", label: "New Arrivals" },
-    { href: "/products?page=1&badge=Sale", label: "Sale" },
-  ];
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
@@ -29,7 +30,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
+          {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
               href={link.href}
@@ -46,7 +47,7 @@ export function Navbar() {
             href="/products"
             className={buttonVariants({ variant: "ghost", size: "icon" })}
           >
-            <Search className="size=5" />
+            <Search className="size-5" />
           </Link>
           <Link
             href="/cart"
@@ -96,7 +97,7 @@ export function Navbar() {
       {mobileOpen && (
         <div className="border-t bg-background md:hidden">
           <nav className="container flex flex-col gap-4 py-6">
-            {navLinks.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}

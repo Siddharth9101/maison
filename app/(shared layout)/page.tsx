@@ -6,6 +6,25 @@ import Link from "next/link";
 import { getCategories, getHomeProducts } from "../actions";
 import { toast } from "sonner";
 
+const HOME_PAGE_CONTENT = {
+  hero: {
+    season: "Spring/Summer",
+    headline: "Timeless\nEssentials",
+    description:
+      "Thoughtfully designed pieces that transcend seasons. Crafted for comfort, built to last.",
+  },
+  featured: {
+    title: "Featured",
+  },
+  banner: {
+    title: "Free Shipping on Orders Over ₹500",
+    description: "Plus easy 30-day returns on all orders.",
+  },
+  newArrivals: {
+    title: "New Arrivals",
+  },
+};
+
 export default async function HomePage() {
   const categoriesRes = await getCategories();
 
@@ -37,16 +56,13 @@ export default async function HomePage() {
         <div className="container relative z-10 py-20">
           <div className="max-w-xl space-y-6">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              Spring/Summer {new Date().getFullYear()}
+              {HOME_PAGE_CONTENT.hero.season} {new Date().getFullYear()}
             </p>
             <h1 className="font-display text-5xl font-bold leading-tight tracking-tight md:text-7xl">
-              Timeless
-              <br />
-              Essentials
+              {HOME_PAGE_CONTENT.hero.headline}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Thoughtfully designed pieces that transcend seasons. Crafted for
-              comfort, built to last.
+              {HOME_PAGE_CONTENT.hero.description}
             </p>
             <div className="flex gap-4">
               <Link
@@ -57,7 +73,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 className={buttonVariants({ variant: "outline", size: "lg" })}
-                href="/products?category=new"
+                href="/products?badge=new"
               >
                 New Arrivals
               </Link>
@@ -95,7 +111,9 @@ export default async function HomePage() {
       {/* featured */}
       <section className="container pb-16">
         <div className="mb-8 flex items-end justify-between">
-          <h2 className="font-display text-3xl font-bold">Featured</h2>
+          <h2 className="font-display text-3xl font-bold">
+            {HOME_PAGE_CONTENT.featured.title}
+          </h2>
           <Link
             href="/products"
             className="text-sm flex gap-2  items-center font-medium text-muted-foreground hover:text-foreground"
@@ -114,10 +132,10 @@ export default async function HomePage() {
       <section className="bg-primary py-16 text-center text-primary-foreground">
         <div className="container space-y-4">
           <h2 className="font-display text-3xl font-bold md:text-4xl">
-            Free Shipping on Orders Over ₹500
+            {HOME_PAGE_CONTENT.banner.title}
           </h2>
           <p className="text-primary-foreground/70">
-            Plus easy 30-day returns on all orders.
+            {HOME_PAGE_CONTENT.banner.description}
           </p>
           <Link
             href="/products?page=1"
@@ -136,7 +154,9 @@ export default async function HomePage() {
       {/* new arrivals */}
       {newArrivals.length > 0 && (
         <section className="container py-16">
-          <h2 className="mb-8 font-display text-3xl font-bold">New Arrivals</h2>
+          <h2 className="mb-8 font-display text-3xl font-bold">
+            {HOME_PAGE_CONTENT.newArrivals.title}
+          </h2>
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             {newArrivals.map((product) => (
               <ProductCard key={product.id} product={product} />

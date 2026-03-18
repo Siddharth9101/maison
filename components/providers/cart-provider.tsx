@@ -4,6 +4,18 @@ import { CartContext, CartItem } from "@/app/contexts/cart-context";
 import { SingleProduct } from "@/app/types";
 import { ReactNode, useEffect, useState } from "react";
 
+const isMatchingCartItem = (
+  item: CartItem,
+  productId: string,
+  sku: string,
+  size: string,
+  color: string,
+) =>
+  item.product.id === productId &&
+  item.sku === sku &&
+  item.size === size &&
+  item.color === color;
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") return [];
@@ -14,6 +26,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
+
   const addToCart = (
     product: SingleProduct,
     sku: string,
@@ -22,19 +35,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     quantity = 1,
   ) => {
     setCartItems((prev) => {
-      const existing = prev.find(
-        (item) =>
-          item.product.id === product.id &&
-          item.sku === sku &&
-          item.size === size &&
-          item.color === color,
+      const existing = prev.find((item) =>
+        isMatchingCartItem(item, product.id, sku, size, color),
       );
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id &&
-          item.size === size &&
-          item.sku === sku &&
-          item.color === color
+          isMatchingCartItem(item, product.id, sku, size, color)
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
@@ -50,15 +56,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     color: string,
   ) => {
     setCartItems((prev) =>
-      prev.filter(
-        (item) =>
-          !(
-            item.product.id === productId &&
-            item.sku === sku &&
-            item.size === size &&
-            item.color === color
-          ),
-      ),
+      prev.filter((item) => !isMatchingCartItem(item, productId, sku, size, color)),
     );
   };
 
@@ -72,10 +70,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (quantity < 1) return removeFromCart(productId, sku, size, color);
     setCartItems((prev) =>
       prev.map((item) =>
-        item.product.id === productId &&
-        item.sku === sku &&
-        item.size === size &&
-        item.color === color
+        isMatchingCartItem(item, productId, sku, size, color)
           ? { ...item, quantity }
           : item,
       ),

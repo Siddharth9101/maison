@@ -9,22 +9,22 @@ interface CategoriesProps {
   categories: Category[];
 }
 
-export default function Categories({ categories }: CategoriesProps) {
+const CATEGORY_BUTTON_STYLES = { className: "rounded-sm", size: "sm" as const };
+
+export function Categories({ categories }: CategoriesProps) {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category");
   const activeBadge = searchParams.get("badge");
+  const isAllActive = !activeCategory && !activeBadge;
+
   return (
     <div className="flex flex-wrap gap-2">
       <Link
         href="/products?page=1"
         replace
         className={buttonVariants({
-          className: "rounded-sm",
-          size: "sm",
-          variant:
-            activeCategory === null && activeBadge === null
-              ? "default"
-              : "outline",
+          ...CATEGORY_BUTTON_STYLES,
+          variant: isAllActive ? "default" : "outline",
         })}
       >
         All
@@ -40,8 +40,7 @@ export default function Categories({ categories }: CategoriesProps) {
             href={`/products?${params.toString()}`}
             replace
             className={buttonVariants({
-              className: "rounded-sm",
-              size: "sm",
+              ...CATEGORY_BUTTON_STYLES,
               variant: activeCategory === cat.name ? "default" : "outline",
             })}
           >
@@ -53,8 +52,7 @@ export default function Categories({ categories }: CategoriesProps) {
         href="/products?page=1&badge=New"
         replace
         className={buttonVariants({
-          className: "rounded-sm",
-          size: "sm",
+          ...CATEGORY_BUTTON_STYLES,
           variant: activeBadge === "New" ? "default" : "outline",
         })}
       >
@@ -64,8 +62,7 @@ export default function Categories({ categories }: CategoriesProps) {
         href="/products?page=1&badge=Sale"
         replace
         className={buttonVariants({
-          className: "rounded-sm",
-          size: "sm",
+          ...CATEGORY_BUTTON_STYLES,
           variant: activeBadge === "Sale" ? "default" : "outline",
         })}
       >

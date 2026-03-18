@@ -1,7 +1,11 @@
 export function LoadingComp() {
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+    <div className="flex min-h-screen items-center justify-center">
+      <div
+        className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"
+        role="status"
+        aria-label="Loading"
+      />
     </div>
   );
 }

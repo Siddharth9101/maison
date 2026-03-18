@@ -1,8 +1,8 @@
 import { getCategories } from "@/app/actions";
-import Categories from "@/components/web/categories";
+import { Categories } from "@/components/web/categories";
 import { LoadingComp } from "@/components/web/loading";
 import { Products } from "@/components/web/products";
-import SortFilter from "@/components/web/sort-filter";
+import { SortFilter } from "@/components/web/sort-filter";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 

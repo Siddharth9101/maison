@@ -24,7 +24,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/products?page=1&category=new"
+                  href="/products?page=1&badge=New"
                   className="hover:text-foreground"
                 >
                   New Arrivals
@@ -32,7 +32,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/products?page=1&category=sale"
+                  href="/products?page=1&badge=Sale"
                   className="hover:text-foreground"
                 >
                   Sale
@@ -45,21 +45,9 @@ export function Footer() {
               Help
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Shipping & Returns
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  FAQ
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Contact Us
-                </span>
-              </li>
+              <li>Shipping & Returns</li>
+              <li>FAQ</li>
+              <li>Contact Us</li>
             </ul>
           </div>
           <div>
@@ -67,21 +55,9 @@ export function Footer() {
               Company
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  About
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Careers
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Privacy Policy
-                </span>
-              </li>
+              <li>About</li>
+              <li>Careers</li>
+              <li>Privacy Policy</li>
             </ul>
           </div>
         </div>

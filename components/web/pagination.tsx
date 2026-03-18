@@ -16,22 +16,28 @@ interface PaginationProps {
 
 export function PaginationComp({ page, totalPages }: PaginationProps) {
   return (
-    <Pagination className="mt-10">
+    <Pagination className="mt-10" role="navigation" aria-label="Pagination Navigation">
       <PaginationContent>
         {page > 1 && (
           <PaginationItem>
-            <PaginationPrevious href={`/products?page=${page - 1}`} />
+            <PaginationPrevious
+              href={`/products?page=${page - 1}`}
+              aria-label={`Go to page ${page - 1}`}
+            />
           </PaginationItem>
         )}
 
         {Array.from({ length: totalPages }).map((_, i) => {
           const pageNumber = i + 1;
+          const isActive = page === pageNumber;
 
           return (
             <PaginationItem key={pageNumber}>
               <PaginationLink
                 href={`/products?page=${pageNumber}`}
-                isActive={page === pageNumber}
+                isActive={isActive}
+                aria-label={`${isActive ? "Current page" : "Go to page"} ${pageNumber}`}
+                aria-current={isActive ? "page" : undefined}
               >
                 {pageNumber}
               </PaginationLink>
@@ -41,7 +47,10 @@ export function PaginationComp({ page, totalPages }: PaginationProps) {
 
         {page < totalPages && (
           <PaginationItem>
-            <PaginationNext href={`/products?page=${page + 1}`} />
+            <PaginationNext
+              href={`/products?page=${page + 1}`}
+              aria-label={`Go to page ${page + 1}`}
+            />
           </PaginationItem>
         )}
       </PaginationContent>

@@ -7,7 +7,17 @@ interface ProductCardProps {
   product: HomeProduct;
 }
 
+const BADGE_STYLES = {
+  Sale: "bg-badge-sale text-destructive-foreground",
+  New: "bg-badge-new text-accent-foreground",
+} as const;
+
 export function ProductCard({ product }: ProductCardProps) {
+  const getBadgeClass = (badge?: string) => {
+    if (!badge) return "";
+    return BADGE_STYLES[badge as keyof typeof BADGE_STYLES] || BADGE_STYLES.New;
+  };
+
   return (
     <Link href={`/products/${product.id}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-secondary">
@@ -20,11 +30,9 @@ export function ProductCard({ product }: ProductCardProps) {
         />
         {product.badge && (
           <Badge
-            className={`absolute left-3 top-3 text-[10px] rounded-full font-semibold uppercase tracking-wider ${
-              product.badge === "Sale"
-                ? "bg-badge-sale text-destructive-foreground"
-                : "bg-badge-new text-accent-foreground"
-            }`}
+            className={`absolute left-3 top-3 rounded-full text-[10px] font-semibold uppercase tracking-wider ${getBadgeClass(
+              product.badge,
+            )}`}
           >
             {product.badge}
           </Badge>

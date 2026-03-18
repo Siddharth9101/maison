@@ -9,7 +9,14 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function SortFilter() {
+const SORT_OPTIONS = [
+  { value: "default", label: "Default" },
+  { value: "price-asc", label: "Price: Low → High" },
+  { value: "price-desc", label: "Price: High → Low" },
+  { value: "rating", label: "Top Rated" },
+] as const;
+
+export function SortFilter() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sort = searchParams.get("sort") || "default";
@@ -31,10 +38,11 @@ export default function SortFilter() {
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="default">Default</SelectItem>
-        <SelectItem value="price-asc">Price: Low → High</SelectItem>
-        <SelectItem value="price-desc">Price: High → Low</SelectItem>
-        <SelectItem value="rating">Top Rated</SelectItem>
+        {SORT_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
