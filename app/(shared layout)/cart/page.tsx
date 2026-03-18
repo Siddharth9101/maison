@@ -4,9 +4,15 @@ import { useCart } from "@/app/contexts/cart-context";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Cart | Maison",
+  description: "Review your selected items and proceed to checkout.",
+};
 
 export default function CartPage() {
   const router = useRouter();
@@ -18,7 +24,7 @@ export default function CartPage() {
         <ShoppingBag className="mb-4 h-16 w-16 text-muted-foreground/50" />
         <h1 className="font-display text-2xl font-bold">Your Cart is Empty</h1>
         <p className="mt-2 text-muted-foreground">
-          Looks like you haven't added anything yet.
+          {"Looks like you haven't added anything yet."}
         </p>
         <Link
           href="/products?page=1"

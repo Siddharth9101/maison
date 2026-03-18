@@ -1,10 +1,9 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { useEffect } from "react";
 
 export const metadata: Metadata = {
   title: "404 - Page Not Found",
@@ -13,14 +12,6 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   const router = useRouter();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      pathname,
-    );
-  }, [pathname]);
   return (
     <html lang="en" suppressHydrationWarning>
       <body>

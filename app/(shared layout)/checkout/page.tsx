@@ -19,6 +19,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Checkout | Maison",
+  description: "Complete your purchase and review your order details.",
+};
 
 export default function CheckoutPage() {
   const { cartItems, total, clearCart } = useCart();
@@ -26,6 +33,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<"address" | "confirmation">("address");
   const router = useRouter();
   const [isPending, setPending] = useState(false);
+  const { Razorpay } = useRazorpay();
   const [address, setAddress] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -38,15 +46,6 @@ export default function CheckoutPage() {
     pin: "",
     country: "",
   });
-  const loadRazorpay = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   useEffect(() => {
     // fetch users address db
@@ -140,14 +139,6 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = async () => {
-    const res = await loadRazorpay();
-    if (!res) {
-      toast.error("Razorpay SDK failed to load", {
-        position: "top-center",
-      });
-      return;
-    }
-
     const orderRes = await createOrder(cartItems);
 
     if (!orderRes || !orderRes.success) {
@@ -158,15 +149,15 @@ export default function CheckoutPage() {
     }
 
     const { order } = orderRes.data;
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    const options: RazorpayOrderOptions = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
       amount: order.amount,
       currency: "INR",
       name: "Maison",
       description: "Thank you for your purchase!",
       order_id: order.id,
 
-      handler: async function (response: any) {
+      handler: async (response) => {
         // send to backend for verification
         const res = await verifyPayment(response, cartItems);
 
@@ -190,9 +181,9 @@ export default function CheckoutPage() {
         color: "#000000",
       },
     };
-    const paymentObject = new (window as any).Razorpay(options);
+    const paymentObject = new Razorpay(options);
 
-    paymentObject.on("payment.failed", async function (response: any) {
+    paymentObject.on("payment.failed", async (response) => {
       console.log("Payment failed:", response.error);
 
       await deleteOrder(order.id);

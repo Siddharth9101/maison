@@ -3,6 +3,7 @@ import { Categories } from "@/components/web/categories";
 import { LoadingComp } from "@/components/web/loading";
 import { Products } from "@/components/web/products";
 import { SortFilter } from "@/components/web/sort-filter";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -12,6 +13,11 @@ interface SearchParamsType {
   sort?: string;
   badge?: string;
 }
+
+export const metadata: Metadata = {
+  title: "Shop | Maison",
+  description: "Explore our curated collection of high-end fashion products.",
+};
 
 export default async function ProductsPage({
   searchParams,
