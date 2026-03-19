@@ -1,6 +1,3 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import "./globals.css";
 
 import type { Metadata } from "next";
@@ -11,7 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function GlobalNotFound() {
-  const router = useRouter();
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -22,15 +18,6 @@ export default function GlobalNotFound() {
               <p className="mb-4 text-xl text-muted-foreground">
                 Oops! Page not found
               </p>
-              <button
-                onClick={() => {
-                  router.push("/");
-                  router.refresh();
-                }}
-                className="text-primary underline hover:text-primary/90"
-              >
-                Return to Home
-              </button>
             </div>
           </div>
         </main>

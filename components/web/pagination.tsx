@@ -15,8 +15,15 @@ interface PaginationProps {
 }
 
 export function PaginationComp({ page, totalPages }: PaginationProps) {
+  if (totalPages <= 1) {
+    return null;
+  }
   return (
-    <Pagination className="mt-10" role="navigation" aria-label="Pagination Navigation">
+    <Pagination
+      className="mt-10"
+      role="navigation"
+      aria-label="Pagination Navigation"
+    >
       <PaginationContent>
         {page > 1 && (
           <PaginationItem>
